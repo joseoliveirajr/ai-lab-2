@@ -5,7 +5,6 @@ from math import radians, cos, sin, asin, sqrt
 from SearchProblem import *
 from SearchAnimator import *
 
-
 INFINITY = 1.0e400
 CUTOFF = "CUTOFF"
 
@@ -134,16 +133,14 @@ def greedy_best_first_graph_search(problem, callback):
 
 def __astar_f(node, problem):
     if node.parent:
-        return problem.g(node.path_cost, node.parent.state, node.action,
-            node.state) + problem.h(node)
+        return problem.g(node.path_cost, node.parent.state, node.action, node.state) + problem.h(node)
     else:
         return 0 + problem.h(node)
 
 
 def astar_search(problem, callback, h=None):
     """Best-first graph search with f(n) = g(n)+h(n). [p 85]"""
-    return best_first_graph_search(problem,
-        lambda node: __astar_f(node, problem), callback)
+    return best_first_graph_search(problem, lambda node: __astar_f(node, problem), callback)
 
 
 ## Main loop
