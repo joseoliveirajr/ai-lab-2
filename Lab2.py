@@ -111,24 +111,44 @@ def best_first_graph_search(problem, f, callback):
     You specify the function f(node) that you want to minimize; for example,
     if f is a heuristic estimate to the goal, then we have greedy best
     first search; if f is node.depth then we have depth-first search."""
-    ### YOU IMPLEMENT THIS ###
+    Node.nodecount = 0
+    closed = {}
+    fringe = PriorityQueue(f=f)
+    fringe.append(Node(problem.initial))
+    while fringe:
+        node = fringe.pop()
+        if problem.goal_test(node.state):
+            callback(problem.graph, node, fringe, closed, True)
+            return node
+        if node.state not in closed:
+            closed[node.state] = True
+            fringe.extend(node.expand(problem))
+            callback(problem.graph, node, fringe, closed, False)
+    return None
 
 
 def greedy_best_first_graph_search(problem, callback):
     """Best-first graph search with f(n)=h(n). [p 85]"""
-    ### YOU IMPLEMENT THIS ###
+    return best_first_graph_search(problem, lambda node: problem.h(node), callback)
+
+
+def __astar_f(node, problem):
+    if node.parent:
+        return problem.g(node.path_cost, node.parent.state, node.action,
+            node.state) + problem.h(node)
+    else:
+        return 0 + problem.h(node)
 
 
 def astar_search(problem, callback, h=None):
     """Best-first graph search with f(n) = g(n)+h(n). [p 85]"""
-    ### YOU IMPLEMENT THIS ###
+    return best_first_graph_search(problem,
+        lambda node: __astar_f(node, problem), callback)
 
 
 ## Main loop
 if __name__ == "__main__":
-    algs = {
-            "GS": graph_search,
-            "BFS": breadth_first_graph_search,
+    algs = {"BFS": breadth_first_graph_search,
             "DFS": depth_first_graph_search,
             "IDS": iterative_deepening_search,
             "greedy": greedy_best_first_graph_search,
