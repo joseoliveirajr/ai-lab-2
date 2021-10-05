@@ -6,6 +6,10 @@ from SearchProblem import *
 from SearchAnimator import *
 
 
+INFINITY = 1.0e400
+CUTOFF = "CUTOFF"
+
+
 ## ############################ #
 ## Uninformed Search Algorithms #
 ## ############################ #
@@ -33,27 +37,69 @@ def graph_search(problem, callback):
 def breadth_first_graph_search(problem, callback):
     """Search the shallowest nodes in the search tree first. [p 77]"""
     Node.nodecount = 0
-    node = Node(problem.inition)
     closed = {}
     fringe = FIFOQueue()
-    if problem.goal_test(node.state):
-        callback(problem.graph, node, fringe, closed, True)
-        return node
+    fringe.append(Node(problem.initial))
+    while fringe:
+        node = fringe.pop()
+        if problem.goal_test(node.state):
+            callback(problem.graph, node, fringe, closed, True)
+            return node
+        if node.state not in closed:
+            closed[node.state] = True
+            fringe.extend(node.expand(problem))
+            callback(problem.graph, node, fringe, closed, False)
+    return None
 
 
 def depth_first_graph_search(problem, callback):
     """Search the deepest nodes in the search tree first. [p 78]"""
-    ### YOU IMPLEMENT THIS ###
+    Node.nodecount = 0
+    closed = {}
+    fringe = Stack()
+    fringe.append(Node(problem.initial))
+    while fringe:
+        node = fringe.pop()
+        if problem.goal_test(node.state):
+            callback(problem.graph, node, fringe, closed, True)
+            return node
+        if node.state not in closed:
+            closed[node.state] = True
+            fringe.extend(node.expand(problem))
+            callback(problem.graph, node, fringe, closed, False)
+    return None
 
 
 def depth_limited_search(problem, limit, callback):
     """Depth-first search with a depth limit. [p 81]"""
-    ### YOU IMPLEMENT THIS ###	
+    closed = {}
+    fringe = Stack()
+    fringe.append(Node(problem.initial))
+    result = None
+    while fringe:
+        node = fringe.pop()
+        if problem.goal_test(node.state):
+            callback(problem.graph, node, fringe, closed, True)
+            return node
+        if node.depth > limit:
+            result = CUTOFF
+            callback(problem.graph, node, fringe, closed, False)
+        elif node.state not in closed:
+            closed[node.state] = True
+            fringe.extend(node.expand(problem))
+            callback(problem.graph, node, fringe, closed, False)
+    return result
 
 
 def iterative_deepening_search(problem, callback):
     """Iterative deepening using depth limited search [p 81]"""
-    ### YOU IMPLEMENT THIS ###	
+    Node.nodecount = 0
+    depth = 0
+    while True:
+        result = depth_limited_search(problem, depth, callback)
+        if result != CUTOFF:
+            return result
+        depth += 1
 
 
 ## ###################################### #
@@ -80,7 +126,8 @@ def astar_search(problem, callback, h=None):
 
 ## Main loop
 if __name__ == "__main__":
-    algs = {"GS": graph_search,
+    algs = {
+            "GS": graph_search,
             "BFS": breadth_first_graph_search,
             "DFS": depth_first_graph_search,
             "IDS": iterative_deepening_search,
