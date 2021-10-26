@@ -18,7 +18,6 @@ queen in column i is in row board[i]"""
         for col in range(N):
             row = random.choice(range(N))
             self.board[col] = row
-        print(self.board)
 
     def copy(self, q):
         """Copy a candidate solution (prevent aliasing)"""
@@ -30,40 +29,33 @@ queen in column i is in row board[i]"""
         N = len(self.board)
         for col in range(N):
             for row in range(N):
-                new_board = self.board.copy()
-                new_board[col] = row
-                possible_actions.append(new_board)
+                new_queens = Queens(N)
+                new_queens.board = self.board.copy()
+                new_queens.board[col] = row
+                possible_actions.append(new_queens)
         return possible_actions
 
     def cost(self):
         """Compute the cost of this solution."""
-        attacking_pairs_number = 0
         N = len(self.board)
 
-        # Rows
-        print("Rows")
-        for row in range(N):
-            queens_number = 0
-            for col in range(N):
-                if self.board[col] == row:
-                    queens_number += 1
-            print("Queens number:", queens_number)
-            attacking_pairs_number += math.comb(queens_number, 2)
-        print("Attacking:", attacking_pairs_number)
+        row_freq = N * [0]
+        diag_freq = 2 * N * [0] 
+        anti_diag_freq = 2 * N * [0]
 
-
-        # Diagonals
         for i in range(N):
-            queens_number = 0
-            for row in range(N):
-                if row + i > 8:
-                    continue
-                if self.board[row] == row + i:
-                    queens_number += 1
-            attacking_pairs_number += math.comb(queens_number, 2)
-
-        return attacking_pairs_number
-
+            row_freq[self.board[i]] += 1
+            diag_freq[self.board[i] + i] += 1
+            anti_diag_freq[N - self.board[i] + 1] += 1
+        
+        ans = 0
+        for i in range(2 * N):
+            if i < N:
+                ans += math.comb(row_freq[i], 2)
+            ans += math.comb(diag_freq[i], 2)
+            ans += math.comb(anti_diag_freq[i], 2)
+        
+        return ans
 
 
 class QueensSearch(object):
@@ -77,12 +69,12 @@ class QueensSearch(object):
         x = Queens(self.N)
         steps = 0
         while x.cost() > 0:
-            ####################
-            # YOU FILL THIS IN #
-            ####################
+            x = min(x.actions(), key=lambda queens: queens.cost())
+            print(x.cost())
             env.display(x)
             steps += 1
         print("Solved after {} steps.\n".format(steps))
+        print(x.cost())
 
 
 if __name__ == '__main__':
