@@ -52,9 +52,9 @@ queen in column i is in row board[i]"""
         ans = 0
         for i in range(2 * N):
             if i < N:
-                ans += (row_freq[i] * (row_freq[i] - 1)) / 2
-            ans += (diag_freq[i] * (diag_freq[i] - 1)) / 2
-            ans += (anti_diag_freq[i] * (anti_diag_freq[i] - 1)) / 2
+                ans += math.comb(row_freq[i], 2)
+            ans += math.comb(diag_freq[i], 2)
+            ans += math.comb(anti_diag_freq[i], 2)
         
         return int(ans)
 
