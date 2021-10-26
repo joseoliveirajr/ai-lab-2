@@ -46,8 +46,8 @@ queen in column i is in row board[i]"""
 
         for i in range(N):
             row_freq[self.board[i]] += 1
-            diag_freq[self.board[i] + i] += 1
-            anti_diag_freq[N - self.board[i] + i] += 1
+            diag_freq[N - 1 - self.board[i] + i] += 1
+            anti_diag_freq[self.board[i] + i] += 1
         
         ans = 0
         for i in range(2 * N):
