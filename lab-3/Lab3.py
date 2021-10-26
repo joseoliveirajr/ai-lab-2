@@ -29,10 +29,11 @@ queen in column i is in row board[i]"""
         N = len(self.board)
         for col in range(N):
             for row in range(N):
-                new_queens = Queens(N)
-                new_queens.board = self.board.copy()
-                new_queens.board[col] = row
-                possible_actions.append(new_queens)
+                if self.board[col] != row:
+                    new_queens = Queens(N)
+                    new_queens.board = self.board.copy()
+                    new_queens.board[col] = row
+                    possible_actions.append(new_queens)
         return possible_actions
 
     def cost(self):
@@ -46,16 +47,16 @@ queen in column i is in row board[i]"""
         for i in range(N):
             row_freq[self.board[i]] += 1
             diag_freq[self.board[i] + i] += 1
-            anti_diag_freq[N - self.board[i] + 1] += 1
+            anti_diag_freq[N - self.board[i] + i] += 1
         
         ans = 0
         for i in range(2 * N):
             if i < N:
-                ans += math.comb(row_freq[i], 2)
-            ans += math.comb(diag_freq[i], 2)
-            ans += math.comb(anti_diag_freq[i], 2)
+                ans += (row_freq[i] * (row_freq[i] - 1)) / 2
+            ans += (diag_freq[i] * (diag_freq[i] - 1)) / 2
+            ans += (anti_diag_freq[i] * (anti_diag_freq[i] - 1)) / 2
         
-        return ans
+        return int(ans)
 
 
 class QueensSearch(object):
@@ -69,12 +70,15 @@ class QueensSearch(object):
         x = Queens(self.N)
         steps = 0
         while x.cost() > 0:
-            x = min(x.actions(), key=lambda queens: queens.cost())
-            print(x.cost())
+            next = min(x.actions(), key=lambda queens: queens.cost())
+            if next.cost() < x.cost():
+                x = next
+            else:
+                x = Queens(self.N)
             env.display(x)
             steps += 1
+            time.sleep(0.1)
         print("Solved after {} steps.\n".format(steps))
-        print(x.cost())
 
 
 if __name__ == '__main__':
