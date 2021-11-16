@@ -3,15 +3,18 @@ from operator import eq, neg
 
 ## Global variable to keep track of the total number of consistency
 ## checks
-total_checks=0
+total_checks = 0
+
 
 def first(iterable):
     """Return the first element of an iterable."""
     return next(iter(iterable))
 
+
 def extend(s, var, val):
     """Copy dict s and extend it by setting var to val; return copy."""
     return {**s, var: val}
+
 
 class CSP:
     """
@@ -81,14 +84,17 @@ def all_diff_constraint(*values):
     """Returns True if all values are different, False otherwise"""
     return len(values) == len(set(values))
 
-def edge_label_constraint(u,v,uv):
+
+def edge_label_constraint(u, v, uv):
     """Returns True if the edge label constraint hods on an edge 
     from u to v, False otherwise"""
     return abs(u - v) == uv
 
+
 def is_zero(x):
     """Returns True if variable is equal to zero"""
     return x == 0
+
 
 class ACSolver:
     """Solves a CSP with arc consistency and domain splitting"""
@@ -98,15 +104,6 @@ class ACSolver:
         * csp is the CSP to be solved
         """
         self.csp = csp
-
-    # def check(self, D: dict, constraint: Constraint, scope: tuple, assignment: dict, index):
-    #     #     for value in D[scope[index]]:
-    #     #         assignment[scope[index]] = value
-    #     #         if index == len(scope) - 1:
-    #     #             return constraint.holds(assignment)
-    #     #         else:
-    #     #             return self.check(D, constraint, scope, assignment, index + 1)
-    #     #     return 0
 
     def GAC(self, orig_domains, queue=None):
         """
@@ -127,7 +124,6 @@ class ACSolver:
 
         checks = 0
 
-
         ## While queue is not empty
         while queue:
             X, constr = queue.pop()
@@ -138,12 +134,11 @@ class ACSolver:
                 ans, additional_checks = self.any_holds(D, constr, {X: x}, Y)
                 checks += additional_checks
                 if ans:
-                   D_X.add(x)
+                    D_X.add(x)
             if D_X != D[X]:
                 add = self.new_queue(X, constr).difference(queue)
                 queue |= add
                 D[X] = D_X
-
         return True, D, checks
 
     def new_queue(self, var, constr):
@@ -191,8 +186,8 @@ class ACSolver:
         ## Run generalized arc-consistency to get reduced domains
         consistency, new_domains, checks = self.GAC(domains, queue)
         print(f"GAC performed {checks} consistency checks")
-        total_checks+=checks
-        
+        total_checks += checks
+
         ## If this CSP is inconsistent, return False
         if not consistency:
             return False
@@ -208,13 +203,13 @@ class ACSolver:
             var = first(x for x in self.csp.variables if len(new_domains[x]) > 1)
 
             print(f"splitting on var {var}")
-            
+
             if var:
                 ## Split domain for this var
-                dom1, dom2 = partition_domain(new_domains[var])                
-                new_doms1 = extend(new_domains, var, dom1) ## adds new_domains[var]=dom1
-                new_doms2 = extend(new_domains, var, dom2) ## adds new_domains[var]=dom2
-                queue = self.new_queue(var, None) 
+                dom1, dom2 = partition_domain(new_domains[var])
+                new_doms1 = extend(new_domains, var, dom1)  ## adds new_domains[var]=dom1
+                new_doms2 = extend(new_domains, var, dom2)  ## adds new_domains[var]=dom2
+                queue = self.new_queue(var, None)
                 return self.domain_splitting(new_doms1, queue) or \
                        self.domain_splitting(new_doms2, queue)
 
@@ -233,6 +228,3 @@ def ac_solver(csp):
     result = ACSolver(csp).domain_splitting()
     print(f"total consistency checks: {total_checks}")
     return result
-
-
-
