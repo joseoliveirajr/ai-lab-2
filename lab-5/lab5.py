@@ -1,5 +1,5 @@
 from numpy import *
-from NeuralNetSol import *
+from NeuralNet import *
 from tkinter import *
 import threading
 
